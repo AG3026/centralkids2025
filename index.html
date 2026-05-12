@@ -2,18 +2,20 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <!-- Meta tag obrigatória para otimização em aparelhos móveis -->
+    <!-- Meta tag obrigatória para forçar o layout perfeito em celulares -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Redirecionando para o WhatsApp...</title>
     
-    <!-- Pré-conecta com o servidor do WhatsApp para acelerar o redirecionamento -->
-    <link rel="preconnect" href="https://wa.me">
+    <!-- Pré-conecta com a API do WhatsApp para carregar mais rápido -->
+    <link rel="preconnect" href="https://api.whatsapp.com">
 
-    <!-- COLOQUE SEU PIXEL AQUI EMBAIXO -->
-    <!-- Ex: <script> Código do Pixel do Facebook/Kwai </script> -->
+    <!-- ========================================== -->
+    <!-- COLE O SEU PIXEL (META, KWAI, GOOGLE) AQUI -->
+    <!-- ========================================== -->
+    
 
     <style>
-        /* CSS Inline para zerar requisições externas e carregar instantaneamente */
+        /* CSS Inline: zero requisições externas para carregar instantaneamente */
         body {
             margin: 0;
             padding: 0;
@@ -28,7 +30,7 @@
         }
         .loader {
             border: 4px solid #e0e0e0;
-            border-top: 4px solid #25D366; /* Verde do WhatsApp */
+            border-top: 4px solid #25D366; /* Cor verde do WhatsApp */
             border-radius: 50%;
             width: 45px;
             height: 45px;
@@ -46,7 +48,7 @@
             font-weight: 500;
         }
         .btn-fallback {
-            display: none; /* Escondido por padrão, aparece se o JS falhar */
+            display: none; /* Fica escondido e só aparece se o redirecionamento falhar */
             margin-top: 25px;
             padding: 14px 28px;
             background-color: #25D366;
@@ -56,6 +58,10 @@
             font-weight: bold;
             font-size: 16px;
             box-shadow: 0 4px 6px rgba(37, 211, 102, 0.3);
+            transition: background-color 0.3s;
+        }
+        .btn-fallback:active {
+            background-color: #1ebe5d;
         }
     </style>
 </head>
@@ -64,37 +70,40 @@
     <div class="loader"></div>
     <p>Aguarde, conectando você ao nosso WhatsApp...</p>
     
-    <!-- Botão de segurança caso a internet do usuário trave o redirecionamento automático -->
+    <!-- Botão de salvamento de lead caso a internet trave ou o navegador bloqueie -->
     <a href="#" class="btn-fallback" id="btn-fallback">Clique aqui para abrir o WhatsApp</a>
 
     <script>
         // ==========================================
-        // CONFIGURAÇÕES DO WHATSAPP
+        // 1. CONFIGURE SEU NÚMERO AQUI
         // ==========================================
-        // Coloque seu número com DDI (55 para Brasil) e DDD. Ex: 5511999999999
+        // Coloque DDI + DDD + NÚMERO. Exatamente como no exemplo, mantendo as aspas.
         const numeroWhatsApp = "553175126925"; 
         
-        // Mensagem padrão que o cliente vai enviar (opcional)
-        const mensagemPadrao = "Olá! Tenho interesse e gostaria de saber mais.";
+        // Mensagem de gatilho que o cliente já vai enviar pronta
+        const mensagemPadrao = "Olá! Tenho interesse no conteúdo e gostaria de saber mais.";
         
-        // Monta o link final
-        const linkDestino = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagemPadrao)}`;
+        // Monta o link agressivo usando a API oficial do WhatsApp
+        const linkDestino = "https://api.whatsapp.com/send?phone=" + numeroWhatsApp + "&text=" + encodeURIComponent(mensagemPadrao);
 
-        // Configura o link no botão de fallback
+        // Prepara o botão de segurança com o link correto
         document.getElementById('btn-fallback').href = linkDestino;
 
         // ==========================================
-        // REDIRECIONAMENTO AUTOMÁTICO
+        // 2. LÓGICA DE REDIRECIONAMENTO E PROTEÇÃO
         // ==========================================
-        // Tempo em milissegundos (800ms) - Ideal para dar tempo do Pixel disparar antes de sair
+        
+        // Dispara o redirecionamento após 800 milissegundos (dá tempo do Pixel registrar a visita)
         setTimeout(function() {
-            window.location.href = linkDestino;
+            // Utilizamos replace() para forçar a saída, ignorando alguns bloqueios de in-app browsers
+            window.location.replace(linkDestino);
         }, 800);
 
-        // Exibe o botão manualmente caso o redirecionamento demore mais de 3 segundos (ex: erro no navegador do cliente)
+        // Sistema de segurança: Se após 2.5 segundos o usuário ainda estiver na página 
+        // (ex: erro na rede ou bloqueio do Kwai/Face), o botão verde aparece.
         setTimeout(function() {
             document.getElementById('btn-fallback').style.display = 'inline-block';
-        }, 3000);
+        }, 2500);
     </script>
 
 </body>
